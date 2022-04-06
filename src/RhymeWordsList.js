@@ -13,14 +13,14 @@ function RhymeWordsList () {
     const [savedOutput, setSavedOutput] = useState(null);
     const[isLoading, setLoading] = useState(false)
     let savedWords = [];
-    const url = "https://api.datamuse.com/words?rel_rhy="
+    // const url = "https://api.datamuse.com/words?rel_rhy="
 
     function showRhymingWords() {        
         const input_word = inputEl.current.value;
         setOutDescEl('Words that rhyme with ' + input_word + ":");
         setState(false);
         setLoading(true);
-        fetch(url+input_word)
+        fetch("https://api.datamuse.com/words?rel_rhy="+input_word)
             .then((response) => response.json())
             .then(data => {
                 setLoading(false)
@@ -45,7 +45,7 @@ function RhymeWordsList () {
         setOutDescEl('Words with a meaning similar to ' + input_word + ':');
         setState(false);
         setLoading(true);
-        fetch(url+input_word)
+        fetch("https://api.datamuse.com/words?ml="+input_word)
         .then((response) => response.json())
         .then(data => {
             setLoading(false)
