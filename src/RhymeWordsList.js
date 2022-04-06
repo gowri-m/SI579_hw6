@@ -11,48 +11,57 @@ function RhymeWordsList () {
     const [state, setState] = useState(false);
     const [dataResponse, setDataResponse] = useState(null);
     const [savedOutput, setSavedOutput] = useState(null);
+    const[isLoading, setLoading] = useState(false)
     let savedWords = [];
-       
-    async function showRhymingWords() {        
-        const input_word = inputEl.current.value;
-        const res = await fetch("https://api.datamuse.com/words?rel_rhy=" + input_word);
-        const data = await res.json();
+    const url = "https://api.datamuse.com/words?rel_rhy="
 
+    function showRhymingWords() {        
+        const input_word = inputEl.current.value;
         setOutDescEl('Words that rhyme with ' + input_word + ":");
-        setDataResponse('Loading...');
-        setState(true);
-        
-        if(data.length === 0){
-            setDataResponse('(no result)');
-        }else{
-            const wordGroups = groupBy(data, 'numSyllables');
-            let elements = []
-            Object.values(wordGroups).forEach(eachGroup => {      
-                const sub_elements = eachGroup.map((item, i) => <RhymeWord sylVal={i ? '' : item.numSyllables+' Syllable'} keyVal={i} description={item.word} onClickSaveWords={()=>saveWords(item.word)}/>)
-                elements.push(sub_elements);
-            });
-            setDataResponse(elements);
-        }  
-        //console.log(data);
+        setState(false);
+        setLoading(true);
+        fetch(url+input_word)
+            .then((response) => response.json())
+            .then(data => {
+                setLoading(false)
+                setState(true);
+                // console.log(data)
+                if(data.length === 0){
+                        setDataResponse('(no result)');
+                }
+                else{
+                    const wordGroups = groupBy(data, 'numSyllables');
+                    let elements = []
+                    Object.values(wordGroups).forEach(eachGroup => {      
+                        const sub_elements = eachGroup.map((item, i) => <RhymeWord sylVal={i ? '' : item.numSyllables+' Syllable'} keyVal={i} description={item.word} onClickSaveWords={()=>saveWords(item.word)}/>)
+                        elements.push(sub_elements);
+                });
+                setDataResponse(elements);
+         }})
     }
 
-    async function showSynonyms() {
+    function showSynonyms() {
         const input_word = inputEl.current.value;
-        const res = await fetch("https://api.datamuse.com/words?ml=" + input_word);
-        const data = await res.json();
-        
         setOutDescEl('Words with a meaning similar to ' + input_word + ':');
-        setDataResponse('Loading...');
-        setState(true);
+        setState(false);
+        setLoading(true);
+        fetch(url+input_word)
+        .then((response) => response.json())
+        .then(data => {
+            setLoading(false)
+            setState(true);
+            // console.log(state, dataResponse)
+            if(data.length === 0){
+                setDataResponse('(no result)');
+            }else{
+                const elements = data.map((item, i) => <RhymeWord description={item.word} onClickSaveWords={()=>saveWords(item.word)}/>)
+                setDataResponse(elements);
+            }
+        // console.log(data);
 
-        if(data.length === 0){
-            setDataResponse('(no result)');
-        }else{
-            const elements = data.map((item, i) => <RhymeWord description={item.word} onClickSaveWords={()=>saveWords(item.word)}/>)
-            setDataResponse(elements);
-        }
-        //console.log(data);
-      }
+        })
+        
+       }
 
     function saveWords(newWord) {
         if(savedWords.length !== 0){
@@ -109,6 +118,7 @@ function RhymeWordsList () {
     }
 
     return (<div className="container"> 
+        <a href='https://github.com/gowri-m/SI579_hw6'> Link to source code</a>
         <h1 className="row">Rhyme Finder (579 Problem Set 6)</h1>
         <div className="row">
             <div className="col">Saved words: <span>{savedOutput ? savedOutput : ''}</span></div>
@@ -127,6 +137,7 @@ function RhymeWordsList () {
         </div>
         <div className="output row">
             <output className="col">
+                { isLoading ? "Loading..." : ''}
                 { state ? dataResponse : ''}
             </output>
         </div>
@@ -134,4 +145,4 @@ function RhymeWordsList () {
     
 }
 
-export default RhymeWordsList;
+export default RhymeWordsList
